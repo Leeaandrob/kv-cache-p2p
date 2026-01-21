@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/libp2p/go-libp2p v0.32.0
 	github.com/multiformats/go-multiaddr v0.12.0
+	github.com/pierrec/lz4/v4 v4.1.25
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 )
 

@@ -37,41 +37,78 @@ INCLUDES := -I$(CUDA_INCLUDE)
 # Library paths
 LDFLAGS := -L$(CUDA_LIB) -lcudart
 
-# Source files
-SRCS := kvcache_memory.cu kvcache_ops.cu
-OBJS := $(SRCS:.cu=.o)
-DEPS := kvcache.h
+# Source files - KV Cache operations
+KVCACHE_SRCS := kvcache_memory.cu kvcache_ops.cu
+KVCACHE_OBJS := $(KVCACHE_SRCS:.cu=.o)
+KVCACHE_DEPS := kvcache.h
+KVCACHE_LIB := libkvcache.a
 
-# Output library
-LIB := libkvcache.a
+# Source files - Compression
+COMPRESS_SRCS := compression_quant.cu compression_sparse.cu compression_delta.cu
+COMPRESS_OBJS := $(COMPRESS_SRCS:.cu=.o)
+COMPRESS_DEPS := compression.h
+COMPRESS_LIB := libkvcache_compression.a
+
+# All sources
+SRCS := $(KVCACHE_SRCS) $(COMPRESS_SRCS)
+OBJS := $(KVCACHE_OBJS) $(COMPRESS_OBJS)
+DEPS := $(KVCACHE_DEPS) $(COMPRESS_DEPS)
+
+# Output libraries
+LIBS := $(KVCACHE_LIB) $(COMPRESS_LIB)
 
 # Default target
 .PHONY: all clean test
 
-all: $(LIB)
+all: $(LIBS)
 
-$(LIB): $(OBJS)
+$(KVCACHE_LIB): $(KVCACHE_OBJS)
 	ar rcs $@ $^
-	@echo "Built $(LIB)"
+	@echo "Built $(KVCACHE_LIB)"
 
-%.o: %.cu $(DEPS)
+$(COMPRESS_LIB): $(COMPRESS_OBJS)
+	ar rcs $@ $^
+	@echo "Built $(COMPRESS_LIB)"
+
+# KV Cache objects
+kvcache_memory.o: kvcache_memory.cu $(KVCACHE_DEPS)
+	$(NVCC) $(NVCC_FLAGS) $(INCLUDES) -c $< -o $@
+
+kvcache_ops.o: kvcache_ops.cu $(KVCACHE_DEPS)
+	$(NVCC) $(NVCC_FLAGS) $(INCLUDES) -c $< -o $@
+
+# Compression objects (need CUB for reductions)
+compression_quant.o: compression_quant.cu $(COMPRESS_DEPS)
+	$(NVCC) $(NVCC_FLAGS) $(INCLUDES) -c $< -o $@
+
+compression_sparse.o: compression_sparse.cu $(COMPRESS_DEPS)
+	$(NVCC) $(NVCC_FLAGS) $(INCLUDES) -c $< -o $@
+
+compression_delta.o: compression_delta.cu $(COMPRESS_DEPS)
 	$(NVCC) $(NVCC_FLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) $(LIB)
+	rm -f $(OBJS) $(LIBS)
 
 # Test compilation
-test: $(LIB)
-	@echo "Testing library linkage..."
+test: $(LIBS)
+	@echo "Testing kvcache library linkage..."
 	@echo '#include "kvcache.h"\nint main() { return 0; }' | \
 		$(NVCC) -x cu - -L. -lkvcache $(LDFLAGS) -o /tmp/kvcache_test && \
 		rm /tmp/kvcache_test && \
-		echo "Test passed!"
+		echo "KV Cache test passed!"
+	@echo "Testing compression library linkage..."
+	@echo '#include "compression.h"\nint main() { return 0; }' | \
+		$(NVCC) -x cu - -L. -lkvcache_compression $(LDFLAGS) -o /tmp/compress_test && \
+		rm /tmp/compress_test && \
+		echo "Compression test passed!"
 
 # Install to system (requires sudo)
-install: $(LIB)
-	install -m 644 $(LIB) /usr/local/lib/
+install: $(LIBS)
+	install -m 644 $(KVCACHE_LIB) /usr/local/lib/
+	install -m 644 $(COMPRESS_LIB) /usr/local/lib/
 	install -m 644 kvcache.h /usr/local/include/
+	install -m 644 compression.h /usr/local/include/
 	ldconfig
 
 # Print configuration
