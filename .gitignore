@@ -1,0 +1,32 @@
+# Binaries
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+kvcache
+demo
+
+# CUDA build artifacts
+gpu/cuda/*.o
+gpu/cuda/*.a
+gpu/cuda/lib*.so
+
+# Go
+*.test
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+/tmp/
