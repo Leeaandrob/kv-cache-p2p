@@ -1,32 +1,25 @@
-# Binaries
-bin/
-*.exe
-*.dll
-*.so
-*.dylib
-kvcache
-demo
 
-# CUDA build artifacts
+# Session state
+.prp-session/
+
+# Internal planning docs
+docs/prps/
+docs/tasks/
+docs/templates/
+docs/brainstorming/
+docs/MEDIUM_POST_OUTLINE.md
+
+# Python cache
+validation/.pytest_cache/
+validation/.benchmarks/
+__pycache__/
+*.pyc
+
+# Build artifacts
+bin/
+demo
+*.o
+*.a
+*.so
 gpu/cuda/*.o
 gpu/cuda/*.a
-gpu/cuda/lib*.so
-
-# Go
-*.test
-go.work
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-/tmp/
