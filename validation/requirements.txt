@@ -1,0 +1,27 @@
+# TinyLLaMA Perplexity Validation Requirements
+# Python 3.9+
+
+# PyTorch - Core ML framework
+torch>=2.0.0
+
+# HuggingFace Transformers - For TinyLLaMA model
+transformers>=4.35.0
+
+# Safetensors - Tensor serialization format
+safetensors>=0.4.0
+
+# Datasets - For WikiText-2
+datasets>=2.14.0
+
+# Numerical computing
+numpy>=1.24.0
+
+# Progress bars
+tqdm>=4.65.0
+
+# Testing
+pytest>=7.0.0
+pytest-timeout>=2.2.0
+
+# Code quality (optional, for development)
+ruff>=0.1.0
